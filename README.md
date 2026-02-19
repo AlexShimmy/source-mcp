@@ -95,11 +95,7 @@ All other settings (such as `SOURCE_MCP_INDEX_DIR`, `EMBEDDING_PROVIDER` or `OPE
 
 ### 💻 Using with Cursor IDE
 
-Cursor supports installing MCP servers via deep links. Click the button below to add Source-MCP (make sure to update the absolute paths before saving):
-
-[![Add to Cursor](https://img.shields.io/badge/Add%20to%20Cursor-black?style=for-the-badge&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=Source-MCP&config=eyJjb21tYW5kIjoidXYiLCJhcmdzIjpbIi0tZGlyZWN0b3J5IiwiL2Fic29sdXRlL3BhdGgvdG8vc291cmNlLW1jcCIsInJ1biIsInB5dGhvbiIsIi1tIiwic3JjLm1haW4iXX0=)
-
-Alternatively, you can manually add the following configuration in `Cursor Settings` > `Features` > `MCP`:
+Add the following MCP server in `Cursor Settings` > `Features` > `MCP` > `+ Add new MCP server`:
 
 - **Name:** `Source-MCP`
 - **Type:** `command`
