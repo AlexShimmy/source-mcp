@@ -7,7 +7,7 @@
 
 ## 📖 Overview
 
-**Source-MCP** leverages the [Model Context Protocol](https://github.com/anthropic/modelcontextprotocol) to provide AI assistants (like Claude, Gemini, and others) with direct access to local files through semantic search.
+**Source-MCP** leverages the [Model Context Protocol](https://modelcontextprotocol.io) to provide AI assistants (like Claude, Gemini, and others) with direct access to local files through semantic search.
 
 Instead of manually copy-pasting code or documentation into your prompts, Source-MCP automatically indexes your local repository, generates vector embeddings, and enables the AI to semantically search and retrieve only the most relevant files.
 
