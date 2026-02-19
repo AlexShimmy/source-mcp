@@ -80,10 +80,6 @@ uv run python -m src.main --path .
 - The **MCP protocol** will listen on `stdio`.
 - The **Web Dashboard** will be available at [http://localhost:8000](http://localhost:8000).
 
-### Using with an MCP Client (e.g., Claude Desktop)
-
-To use Source-MCP inside Claude Desktop or another MCP-compatible client, update your client's configuration file (e.g. `claude_desktop_config.json`).
-
 ```json
 {
   "mcpServers": {
@@ -95,37 +91,30 @@ To use Source-MCP inside Claude Desktop or another MCP-compatible client, update
         "run",
         "python",
         "-m",
-        "src.main",
-        "--path",
-        "/absolute/path/to/your/target/project"
-      ],
-      "env": {
-        "EMBEDDING_PROVIDER": "openai",
-        "OPENAI_API_KEY": "sk-your-openai-key"
-      }
+        "src.main"
+      ]
     }
   }
 }
 ```
 
+Все остальные настройки (такие как `SOURCE_MCP_INDEX_DIR`, `EMBEDDING_PROVIDER` или `OPENAI_API_KEY`) рекомендуется задавать через файл `.env` в корневой директории Source-MCP.
+
 ### 💻 Using with Cursor IDE
 
-To use Source-MCP natively directly in Cursor:
+Cursor поддерживает установку серверов MCP с помощью глубоких ссылок. Нажмите на кнопку ниже, чтобы добавить Source-MCP (обновите пути перед запуском):
 
-1. Open Cursor Settings (`Cmd` + `,`)
-2. Navigate to **Features > MCP**
-3. Click **+ Add new MCP server**
-4. Configure as follows:
-   - **Type:** `command`
-   - **Name:** `Source-MCP`
-   - **Command:** `uv --directory /absolute/path/to/source-mcp run python -m src.main --path /absolute/path/to/your/target/project`
+[![Add to Cursor](https://img.shields.io/badge/Add%20to%20Cursor-black?style=for-the-badge&logo=cursor&logoColor=white)](cursor://mcp?name=Source-MCP&command=uv%20--directory%20/absolute/path/to/source-mcp%20run%20python%20-m%20src.main)
+
+В качестве альтернативы, вы можете добавить следующий сокращенный конфиг вручную в `Cursor Settings` > `Features` > `MCP`:
+
+- **Name:** `Source-MCP`
+- **Type:** `command`
+- **Command:** `uv --directory /absolute/path/to/source-mcp run python -m src.main`
 
 ### 💻 Using with VS Code (Roo Code / Cline)
 
-To integrate Source-MCP into Roo Code (or Cline) inside VS Code:
-
-1. Open the MCP configuration file (`~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/cline_mcp_settings.json` or through the extension UI).
-2. Add the following entry:
+Добавьте следующую запись в настройки вашего расширения (`cline_mcp_settings.json`), а остальные параметры настройте в файле `.env` проекта:
 
 ```json
 {
@@ -139,11 +128,7 @@ To integrate Source-MCP into Roo Code (or Cline) inside VS Code:
         "python",
         "-m",
         "src.main"
-      ],
-      "env": {
-        "SOURCE_MCP_INDEX_DIR": "/absolute/path/to/your/target/project",
-        "EMBEDDING_PROVIDER": "fastembed"
-      }
+      ]
     }
   }
 }

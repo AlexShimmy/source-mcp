@@ -1,7 +1,7 @@
 [project]
 name = "source-mcp"
 version = "0.1.2"
-description = "Add your description here"
+description = "A Model Context Protocol (MCP) server for semantic search and Retrieval-Augmented Generation (RAG) over local codebases and documents."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
