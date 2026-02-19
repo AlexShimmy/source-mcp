@@ -34,7 +34,7 @@ We use [**zvec**](https://github.com/alibaba/zvec), a lightweight, high-performa
 2. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/source-mcp.git
+   git clone https://github.com/AlexShimmy/source-mcp.git
    cd source-mcp
    ```
 
@@ -85,28 +85,21 @@ uv run python -m src.main --path .
   "mcpServers": {
     "source-mcp": {
       "command": "uv",
-      "args": [
-        "--directory",
-        "/absolute/path/to/source-mcp",
-        "run",
-        "python",
-        "-m",
-        "src.main"
-      ]
+      "args": ["--directory", "/absolute/path/to/source-mcp", "run", "python", "-m", "src.main"]
     }
   }
 }
 ```
 
-Все остальные настройки (такие как `SOURCE_MCP_INDEX_DIR`, `EMBEDDING_PROVIDER` или `OPENAI_API_KEY`) рекомендуется задавать через файл `.env` в корневой директории Source-MCP.
+All other settings (such as `SOURCE_MCP_INDEX_DIR`, `EMBEDDING_PROVIDER` or `OPENAI_API_KEY`) should be configured via the `.env` file in the root directory of Source-MCP.
 
 ### 💻 Using with Cursor IDE
 
-Cursor поддерживает установку серверов MCP с помощью глубоких ссылок. Нажмите на кнопку ниже, чтобы добавить Source-MCP (обновите пути перед запуском):
+Cursor supports installing MCP servers via deep links. Click the button below to add Source-MCP (make sure to update the absolute paths before saving):
 
 [![Add to Cursor](https://img.shields.io/badge/Add%20to%20Cursor-black?style=for-the-badge&logo=cursor&logoColor=white)](cursor://mcp?name=Source-MCP&command=uv%20--directory%20/absolute/path/to/source-mcp%20run%20python%20-m%20src.main)
 
-В качестве альтернативы, вы можете добавить следующий сокращенный конфиг вручную в `Cursor Settings` > `Features` > `MCP`:
+Alternatively, you can manually add the following configuration in `Cursor Settings` > `Features` > `MCP`:
 
 - **Name:** `Source-MCP`
 - **Type:** `command`
@@ -114,21 +107,14 @@ Cursor поддерживает установку серверов MCP с по�
 
 ### 💻 Using with VS Code (Roo Code / Cline)
 
-Добавьте следующую запись в настройки вашего расширения (`cline_mcp_settings.json`), а остальные параметры настройте в файле `.env` проекта:
+Add the following entry to your extension settings (`cline_mcp_settings.json`), and configure any remaining parameters within your project's `.env` file:
 
 ```json
 {
   "mcpServers": {
     "source-mcp": {
       "command": "uv",
-      "args": [
-        "--directory",
-        "/absolute/path/to/source-mcp",
-        "run",
-        "python",
-        "-m",
-        "src.main"
-      ]
+      "args": ["--directory", "/absolute/path/to/source-mcp", "run", "python", "-m", "src.main"]
     }
   }
 }

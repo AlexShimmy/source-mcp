@@ -20,7 +20,7 @@ def initialized_system():
     Ensures the system is initialized and has indexed the documents.
     This fixture runs once per module.
     """
-    # 1. Сreate artifacts test_docs
+    # 1. Create artifacts test_docs
     docs_path = Path("artifacts/test_docs")
     if docs_path.exists():
         import shutil
