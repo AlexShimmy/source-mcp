@@ -80,6 +80,10 @@ uv run python -m src.main --path .
 - The **MCP protocol** will listen on `stdio`.
 - The **Web Dashboard** will be available at [http://localhost:8000](http://localhost:8000).
 
+### 🔌 MCP Configuration
+
+The config is the same for all clients (Claude Desktop, Cursor, VS Code / Cline, etc.):
+
 ```json
 {
   "mcpServers": {
@@ -92,34 +96,6 @@ uv run python -m src.main --path .
 ```
 
 All other settings (such as `SOURCE_MCP_INDEX_DIR`, `EMBEDDING_PROVIDER` or `OPENAI_API_KEY`) should be configured via the `.env` file in the root directory of Source-MCP.
-
-### 💻 Using with Cursor IDE
-
-```json
-{
-  "mcpServers": {
-    "source-mcp": {
-      "command": "uv",
-      "args": ["--directory", "/absolute/path/to/source-mcp", "run", "python", "-m", "src.main"]
-    }
-  }
-}
-```
-
-### 💻 Using with VS Code (Roo Code / Cline)
-
-Add the following entry to your extension settings (`cline_mcp_settings.json`), and configure any remaining parameters within your project's `.env` file:
-
-```json
-{
-  "mcpServers": {
-    "source-mcp": {
-      "command": "uv",
-      "args": ["--directory", "/absolute/path/to/source-mcp", "run", "python", "-m", "src.main"]
-    }
-  }
-}
-```
 
 ## 🧪 Testing
 
