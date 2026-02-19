@@ -95,11 +95,16 @@ All other settings (such as `SOURCE_MCP_INDEX_DIR`, `EMBEDDING_PROVIDER` or `OPE
 
 ### 💻 Using with Cursor IDE
 
-Add the following MCP server in `Cursor Settings` > `Features` > `MCP` > `+ Add new MCP server`:
-
-- **Name:** `Source-MCP`
-- **Type:** `command`
-- **Command:** `uv --directory /absolute/path/to/source-mcp run python -m src.main`
+```json
+{
+  "mcpServers": {
+    "source-mcp": {
+      "command": "uv",
+      "args": ["--directory", "/absolute/path/to/source-mcp", "run", "python", "-m", "src.main"]
+    }
+  }
+}
+```
 
 ### 💻 Using with VS Code (Roo Code / Cline)
 
