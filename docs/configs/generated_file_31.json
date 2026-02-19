@@ -1,0 +1,16 @@
+{
+  "config_id": 31,
+  "enabled": false,
+  "params": {
+    "timeout": 131,
+    "retries": 3,
+    "host": "server-31.local"
+  },
+  "tags": [
+    "tag-0",
+    "tag-1",
+    "tag-2",
+    "tag-3",
+    "tag-4"
+  ]
+}

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RMCP Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logs-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .logs-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 4px rgba(74, 222, 128, .3)
+            }
+
+            50% {
+                box-shadow: 0 0 12px rgba(74, 222, 128, .6)
+            }
+        }
+
+        .status-ready {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes slide-in {
+            from {
+                opacity: 0;
+                transform: translateY(4px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .log-entry {
+            animation: slide-in .15s ease-out;
+        }
+
+        .progress-bar {
+            transition: width .4s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0b0f19] text-gray-100 h-screen flex flex-col overflow-hidden">
+    <div id="app" class="flex flex-col h-full">
+
+        <!-- ═══ Header ═══ -->
+        <header
+            class="bg-[#111827]/80 backdrop-blur border-b border-gray-800 px-5 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 rounded-full" :class="statusDotClass"></div>
+                <h1 class="text-lg font-bold tracking-tight text-white">RMCP Server</h1>
+                <span
+                    class="text-[10px] text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full border border-gray-700 font-mono">
+                    v{{ config.version }}
+                </span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-medium" :class="statusBadgeClass">
+                    {{ stats.status }}
+                </span>
+            </div>
+            <div class="text-xs text-gray-500 font-mono flex items-center gap-4">
+                <span>{{ config.embedding_model }}</span>
+                <span class="text-gray-700">|</span>
+                <span>:{{ config.web_port }}</span>
+            </div>
+        </header>
+
+        <!-- ═══ Main ═══ -->
+        <main class="flex-1 flex gap-3 p-3 overflow-hidden">
+
+            <!-- ── Left Column ── -->
+            <div class="w-[340px] min-w-[300px] flex flex-col gap-3">
+
+                <!-- Indexing Progress -->
+                <div class="bg-[#111827] rounded-xl border border-gray-800 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Indexing</h2>
+                        <span v-if="stats.indexing_active"
+                            class="text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full">
+                            Processing…
+                        </span>
+                        <span v-else-if="stats.status === 'Ready'"
+                            class="text-[10px] text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
+                            Complete
+                        </span>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="w-full bg-gray-800 rounded-full h-1.5 mb-3">
+                        <div class="progress-bar h-1.5 rounded-full"
+                            :class="stats.indexing_active ? 'bg-amber-400' : 'bg-emerald-500'"
+                            :style="{ width: progressPercent + '%' }"></div>
+                    </div>
+
+                    <!-- Stats grid -->
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-blue-400 font-mono">{{ stats.files_discovered }}</div>
+                            <div class="text-[10px] text-gray-500 mt-0.5">Found</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-emerald-400 font-mono">{{ stats.files_indexed }}</div>
+                            <div class="text-[10px] text-gray-500 mt-0.5">Indexed</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold font-mono"
+                                :class="stats.files_failed > 0 ? 'text-red-400' : 'text-gray-600'">{{ stats.files_failed
+                                }}</div>
+                            <div class="text-[10px] text-gray-500 mt-0.5">Failed</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-gray-500 font-mono">{{ stats.files_skipped }}</div>
+                            <div class="text-[10px] text-gray-500 mt-0.5">Skipped</div>
+                        </div>
+                    </div>
+
+                    <!-- Current file -->
+                    <div v-if="stats.current_file" class="mt-3 text-[10px] text-gray-500 truncate">
+                        <span class="text-gray-600">▸</span> {{ stats.current_file }}
+                    </div>
+
+                    <!-- Sub-stats -->
+                    <div class="mt-3 pt-3 border-t border-gray-800 flex justify-between text-[11px]">
+                        <span class="text-gray-500">
+                            <span class="text-purple-400 font-mono font-medium">{{ stats.total_chunks }}</span> chunks
+                        </span>
+                        <span class="text-gray-500">
+                            <span class="text-purple-400 font-mono font-medium">{{ stats.index_size_mb.toFixed(2)
+                                }}</span> MB
+                        </span>
+                    </div>
+
+                    <button @click="triggerReindex"
+                        class="mt-4 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-lg border border-red-500/20 transition-colors uppercase tracking-wider">
+                        Reindex Base
+                    </button>
+                </div>
+
+                <!-- Search Box -->
+                <div class="bg-[#111827] rounded-xl border border-gray-800 p-4">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Search</h2>
+                    <div class="flex gap-2">
+                        <input v-model="searchQuery" @keydown.enter="doSearch" type="text" placeholder="Test a query…"
+                            class="flex-1 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 font-mono" />
+                        <button @click="doSearch" :disabled="searching"
+                            class="px-3 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-xs font-medium rounded-lg transition-colors">
+                            {{ searching ? '…' : '⏎' }}
+                        </button>
+                    </div>
+                    <!-- Results -->
+                    <div v-if="searchResults.length"
+                        class="mt-3 space-y-2 max-h-[200px] overflow-y-auto logs-container">
+                        <div v-for="(r, i) in searchResults" :key="i"
+                            class="p-2 bg-gray-800/30 rounded border border-gray-800 text-[11px] text-gray-400 leading-relaxed">
+                            {{ r }}
+                        </div>
+                    </div>
+                    <div v-else-if="searchDone && !searching"
+                        class="mt-3 p-3 bg-gray-800/20 rounded-lg border border-gray-800/50 text-center">
+                        <div class="text-gray-500 text-[11px]">No results found</div>
+                        <div class="text-gray-600 text-[10px] mt-0.5 font-mono">"{{ lastQuery }}"</div>
+                    </div>
+                    <div v-if="searchError" class="mt-2 text-[11px] text-red-400">{{ searchError }}</div>
+                </div>
+
+                <!-- Tools -->
+                <div class="bg-[#111827] rounded-xl border border-gray-800 p-4 flex-1 flex flex-col min-h-0">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">MCP Tools</h2>
+                    <div class="flex-1 overflow-y-auto space-y-1.5 logs-container">
+                        <div v-for="tool in tools" :key="tool.name"
+                            class="p-2.5 bg-gray-800/20 rounded-lg border border-gray-800/50 hover:border-gray-700 transition-colors">
+                            <div class="text-emerald-400 font-mono text-xs font-medium">{{ tool.name }}</div>
+                            <div class="text-[10px] text-gray-500 mt-1 leading-relaxed">{{ tool.description }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Docs Path -->
+                <div class="text-[10px] text-gray-600 px-1 truncate font-mono" :title="config.docs_path">
+                    📁 {{ config.docs_path }}
+                </div>
+            </div>
+
+            <!-- ── Right Column: Logs ── -->
+            <div class="flex-1 bg-[#111827] rounded-xl border border-gray-800 flex flex-col overflow-hidden">
+                <div class="px-4 py-2.5 border-b border-gray-800/50 flex justify-between items-center">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Live Logs</h2>
+                    <div class="flex items-center gap-2 cursor-pointer select-none" @click="autoScroll = !autoScroll"
+                        title="Toggle auto-scroll">
+                        <span class="relative flex h-1.5 w-1.5">
+                            <span v-if="autoScroll"
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5"
+                                :class="autoScroll ? 'bg-emerald-500' : 'bg-gray-600'"></span>
+                        </span>
+                        <span class="text-[10px]"
+                            :class="autoScroll ? 'text-gray-400' : 'text-gray-600'">Auto-scroll</span>
+                    </div>
+                </div>
+                <div ref="logsContainer"
+                    class="flex-1 overflow-y-auto px-4 py-2 font-mono text-[11px] space-y-px logs-container">
+                    <div v-for="(log, i) in logs" :key="i"
+                        class="log-entry flex gap-3 hover:bg-white/[.02] py-0.5 px-1 rounded">
+                        <span class="text-gray-600 whitespace-nowrap select-none w-16 shrink-0">{{
+                            formatTime(log.timestamp) }}</span>
+                        <span :class="levelColor(log.level)"
+                            class="w-12 shrink-0 uppercase tracking-wider text-[10px] font-semibold">{{ log.level
+                            }}</span>
+                        <span class="text-gray-400 break-all leading-relaxed">{{ log.message }}</span>
+                    </div>
+                    <div v-if="!logs.length" class="text-gray-700 text-center py-8">Waiting for logs…</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, nextTick } = Vue
+
+        createApp({
+            setup() {
+                const stats = ref({
+                    status: 'Initializing', files_discovered: 0, files_indexed: 0,
+                    files_failed: 0, files_skipped: 0, total_chunks: 0, index_size_mb: 0,
+                    current_file: null, indexing_active: false,
+                })
+                const config = ref({ version: '…', web_port: 8000, embedding_model: '…', docs_path: '…' })
+                const logs = ref([])
+                const tools = ref([])
+                const logsContainer = ref(null)
+                const searchQuery = ref('')
+                const searchResults = ref([])
+                const searchError = ref('')
+                const searching = ref(false)
+                const autoScroll = ref(true)
+                const searchDone = ref(false)
+                const lastQuery = ref('')
+
+                // ── Derived ──
+                const progressPercent = computed(() => {
+                    const d = stats.value.files_discovered
+                    if (!d) return 0
+                    return Math.round(((stats.value.files_indexed + stats.value.files_failed) / d) * 100)
+                })
+
+                const statusDotClass = computed(() => {
+                    const s = stats.value.status
+                    if (s === 'Ready') return 'bg-emerald-500 status-ready'
+                    if (s === 'Indexing') return 'bg-amber-400 animate-pulse'
+                    if (s === 'Error') return 'bg-red-500'
+                    return 'bg-gray-500 animate-pulse'
+                })
+
+                const statusBadgeClass = computed(() => {
+                    const s = stats.value.status
+                    if (s === 'Ready') return 'text-emerald-400 bg-emerald-400/10'
+                    if (s === 'Indexing') return 'text-amber-400 bg-amber-400/10'
+                    if (s === 'Error') return 'text-red-400 bg-red-400/10'
+                    return 'text-gray-400 bg-gray-400/10'
+                })
+
+                const levelColor = (lvl) => ({
+                    INFO: 'text-blue-400', WARNING: 'text-amber-400',
+                    ERROR: 'text-red-400', DEBUG: 'text-gray-600',
+                }[lvl] || 'text-gray-500')
+
+                const formatTime = (iso) => {
+                    if (!iso) return ''
+                    return new Date(iso).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                }
+
+                // ── Fetchers ──
+                const fetchStats = async () => {
+                    try { stats.value = await (await fetch('/api/stats')).json() }
+                    catch (e) { console.error('Stats:', e) }
+                }
+                const fetchConfig = async () => {
+                    try { config.value = await (await fetch('/api/config')).json() }
+                    catch (e) { console.error('Config:', e) }
+                }
+                const fetchTools = async () => {
+                    try { tools.value = await (await fetch('/api/tools')).json() }
+                    catch (e) { console.error('Tools:', e) }
+                }
+                const fetchLogs = async () => {
+                    try {
+                        const fresh = await (await fetch('/api/logs')).json()
+                        if (fresh.length !== logs.value.length ||
+                            (fresh.length && fresh[fresh.length - 1].timestamp !== logs.value[logs.value.length - 1]?.timestamp)) {
+                            logs.value = fresh
+                            nextTick(() => {
+                                if (autoScroll.value && logsContainer.value) logsContainer.value.scrollTop = logsContainer.value.scrollHeight
+                            })
+                        }
+                    } catch (e) { console.error('Logs:', e) }
+                }
+
+                const doSearch = async () => {
+                    const q = searchQuery.value.trim()
+                    if (!q) return
+                    searching.value = true
+                    searchDone.value = false
+                    searchResults.value = []
+                    searchError.value = ''
+                    lastQuery.value = q
+                    try {
+                        const data = await (await fetch(`/api/search?q=${encodeURIComponent(q)}`)).json()
+                        searchResults.value = data.results || []
+                        searchError.value = data.error || ''
+                    } catch (e) {
+                        searchError.value = e.message
+                    } finally {
+                        searching.value = false
+                        searchDone.value = true
+                    }
+                }
+
+                const triggerReindex = async () => {
+                    if (!confirm("Are you sure? This will wipe the database and re-scan all files.")) return
+                    try {
+                        await fetch('/api/reindex', { method: 'POST' })
+                        fetchStats()
+                    } catch (e) { console.error('Reindex:', e) }
+                }
+
+                onMounted(() => {
+                    fetchConfig()
+                    fetchTools()
+                    fetchStats()
+                    fetchLogs()
+                    setInterval(fetchStats, 1500)
+                    setInterval(fetchLogs, 1000)
+                })
+
+                return {
+                    stats, config, logs, tools, logsContainer,
+                    searchQuery, searchResults, searchError, searching,
+                    searchDone, lastQuery, autoScroll,
+                    progressPercent, statusDotClass, statusBadgeClass,
+                    levelColor, formatTime, doSearch, triggerReindex,
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+
+</html>

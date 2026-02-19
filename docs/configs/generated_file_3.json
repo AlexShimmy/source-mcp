@@ -1,0 +1,16 @@
+{
+  "config_id": 3,
+  "enabled": false,
+  "params": {
+    "timeout": 103,
+    "retries": 3,
+    "host": "server-3.local"
+  },
+  "tags": [
+    "tag-0",
+    "tag-1",
+    "tag-2",
+    "tag-3",
+    "tag-4"
+  ]
+}
