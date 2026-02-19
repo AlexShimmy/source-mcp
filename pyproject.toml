@@ -1,9 +1,9 @@
 [project]
-name = "rag-mcp"
+name = "source-mcp"
 version = "0.1.2"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.129.0",
     "fastembed>=0.7.4",
@@ -28,7 +28,7 @@ packages = ["src"]
 "src/web/templates" = "src/web/templates"
 
 [project.scripts]
-rag-mcp = "src.main:main"
+source-mcp = "src.main:main"
 
 [dependency-groups]
 dev = [

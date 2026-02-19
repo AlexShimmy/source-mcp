@@ -2,10 +2,12 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+import os
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    docs_path: str = "./docs"
+    docs_path: str = os.getenv("SOURCE_MCP_INDEX_DIR", ".")
     zvec_path: str = "./zvec_db"
     
     # Embedding settings

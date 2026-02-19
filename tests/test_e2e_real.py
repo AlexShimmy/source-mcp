@@ -20,12 +20,30 @@ def initialized_system():
     Ensures the system is initialized and has indexed the documents.
     This fixture runs once per module.
     """
-    # 1. Check if docs exist
-    docs_path = Path("docs")
-    if not docs_path.exists() or not any(docs_path.iterdir()):
-        pytest.fail("Docs directory is empty or missing. Run generate_test_data.py first.")
+    # 1. Сreate artifacts test_docs
+    docs_path = Path("artifacts/test_docs")
+    if docs_path.exists():
+        import shutil
+        shutil.rmtree(docs_path)
+    docs_path.mkdir(parents=True, exist_ok=True)
+    
+    # Generate some dummy content
+    (docs_path / "README.md").write_text("# Deployment Guide 0\nThis document covers the Deployment aspects.")
+    (docs_path / "config.json").write_text('{"host": "server-3.local"}')
+    (docs_path / "secret.txt").write_text("NEEDLE_FOUND: special_secret_code_10")
+    
+    src_path = docs_path / "src" / "modules"
+    src_path.mkdir(parents=True, exist_ok=True)
+    (src_path / "generated_file_40.py").write_text("class Service40:\n    def process_data_40(self):\n        pass")
+    
+    # Generate 50+ files to satisfy the test assertions
+    for i in range(50):
+        (docs_path / f"filler_{i}.txt").write_text(f"Filler content {i}")
         
     print("\n[E2E] Initializing IndexerService with real embeddings...")
+    settings.docs_path = str(docs_path)
+    settings.zvec_path = "artifacts/zvec_db_test"
+    
     # Initialize the global indexer (it might already be init by import, but let's ensure)
     indexer.initialize()
     
@@ -79,8 +97,7 @@ def test_search_python_code(initialized_system):
     """
     # file_40 -> index 40 -> Service40, process_data_40
     
-    # Verify file exists
-    f40 = Path("docs/src/modules/generated_file_40.py")
+    f40 = Path("artifacts/test_docs/src/modules/generated_file_40.py")
     if not f40.exists():
         pytest.fail(f"Test file {f40} does not exist!")
         

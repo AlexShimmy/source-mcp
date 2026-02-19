@@ -15,7 +15,7 @@ from .services.monitor import logger, monitor
 from .web.app import app as web_app
 
 # ── MCP Server ──────────────────────────────────────────────
-mcp = FastMCP("Local RAG Server")
+mcp = FastMCP("Source-MCP Local RAG Server")
 
 
 @mcp.tool()
@@ -66,7 +66,7 @@ def run_dashboard():
 
 # ── CLI entry-point ─────────────────────────────────────────
 def main():
-    parser = argparse.ArgumentParser(description="Local RAG MCP Server")
+    parser = argparse.ArgumentParser(description="Source-MCP Server")
     parser.add_argument("--path", type=str, help="Path to the documents directory")
     parser.add_argument("--embed-model", type=str, help="HuggingFace embedding model name")
     parser.add_argument("--web-port", type=int, help="Port for the Web Dashboard")
@@ -77,6 +77,8 @@ def main():
     # Determine project root
     if args.path:
         project_path = Path(args.path).resolve()
+    elif os.getenv("SOURCE_MCP_INDEX_DIR"):
+        project_path = Path(os.getenv("SOURCE_MCP_INDEX_DIR")).resolve()
     else:
         project_path = Path(".").resolve()
 
@@ -90,8 +92,8 @@ def main():
     settings.docs_path = str(project_path)
     
     # Use project-local storage for index
-    ragmcp_dir = project_path / ".rag-mcp"
-    settings.zvec_path = str(ragmcp_dir / "zvec_db")
+    sourcemcp_dir = project_path / ".source-mcp"
+    settings.zvec_path = str(sourcemcp_dir / "zvec_db")
     
     # Update config from env vars if present
     if os.getenv("EMBEDDING_PROVIDER"):

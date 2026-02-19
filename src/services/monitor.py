@@ -90,7 +90,7 @@ class BufferedHandler(logging.Handler):
 
 
 def setup_logging():
-    log = logging.getLogger("rag-mcp")
+    log = logging.getLogger("source-mcp")
     log.setLevel(logging.INFO)
 
     handler = BufferedHandler()

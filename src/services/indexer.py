@@ -49,7 +49,7 @@ class TextChunker:
 # ── Constants ───────────────────────────────────────────────
 BATCH_SIZE = 100       # max docs per zvec upsert
 MAX_CHUNKS = 200       # max chunks per file (prevents huge files from exploding)
-MANIFEST_NAME = ".rag-mcp_manifest.json"
+MANIFEST_NAME = ".source-mcp_manifest.json"
 
 
 # ── Indexer Service ─────────────────────────────────────────

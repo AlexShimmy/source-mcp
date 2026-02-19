@@ -1,4 +1,4 @@
-# RAG-MCP - Gemini Instructions & Guide
+# Source-MCP (formerly RAG-MCP) - Gemini Instructions & Guide
 
 This file contains useful instructions and summaries of changes made during our sessions.
 
@@ -37,7 +37,7 @@ ZVEC_PATH=./zvec_db
 
 ### 2. Incremental Indexing
 
-- Uses `.rag-mcp_manifest.json` to store file fingerprints (mtime + size).
+- Uses `.source-mcp_manifest.json` to store file fingerprints (mtime + size).
 - Only indexes new or modified files on startup.
 
 ### 3. Web Dashboard (Port 8000)
@@ -55,4 +55,8 @@ uv run python -m pytest tests/ -v
 ## 📝 Configuration
 
 - `src/config.py`: Contains default settings.
-- `mcp_config.json`: Use this to configure RAG-MCP as an MCP server for Gemini/Claude.
+- `mcp_config.json`: Use this to configure Source-MCP as an MCP server for Gemini/Claude.
+
+## Communication Language
+
+- ALL interactions, explanations, and commit messages MUST be in Russian unless explicitly requested otherwise.

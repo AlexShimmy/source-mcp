@@ -45,7 +45,7 @@ INDEXABLE_NAMES: Set[str] = {
     "Makefile", "Dockerfile", "Rakefile", "Gemfile", "Procfile",
     "Vagrantfile", "CMakeLists.txt", "LICENSE", "README",
     ".gitignore", ".gitattributes", ".editorconfig",
-    ".rag-mcpignore", ".cursorignore", ".prettierrc", ".eslintrc",
+    ".cursorignore", ".prettierrc", ".eslintrc",
 }
 
 # ── Always-skip directories ────────────────────────────────
@@ -94,21 +94,18 @@ class FileFilter:
     def __init__(self, root: Path):
         self.root = root.resolve()
         self._gitignore_spec: Optional[pathspec.PathSpec] = None
-        self._ragmcpignore_spec: Optional[pathspec.PathSpec] = None
         self._load_ignore_files()
 
     def _load_ignore_files(self):
-        """Parse .gitignore and .rag-mcpignore files."""
-        for name, attr in [(".gitignore", "_gitignore_spec"), (".rag-mcpignore", "_ragmcpignore_spec")]:
-            ignore_path = self.root / name
-            if ignore_path.is_file():
-                try:
-                    patterns = ignore_path.read_text(encoding="utf-8").splitlines()
-                    spec = pathspec.PathSpec.from_lines("gitignore", patterns)
-                    setattr(self, attr, spec)
-                    logger.info(f"Loaded {name} ({len(patterns)} patterns)")
-                except Exception as exc:
-                    logger.warning(f"Failed to parse {name}: {exc}")
+        """Parse .gitignore file."""
+        ignore_path = self.root / ".gitignore"
+        if ignore_path.is_file():
+            try:
+                patterns = ignore_path.read_text(encoding="utf-8").splitlines()
+                self._gitignore_spec = pathspec.PathSpec.from_lines("gitignore", patterns)
+                logger.info(f"Loaded .gitignore ({len(patterns)} patterns)")
+            except Exception as exc:
+                logger.warning(f"Failed to parse .gitignore: {exc}")
 
     def should_index(self, filepath: Path) -> str:
         """Returns empty string if file should be indexed, otherwise a skip reason."""
@@ -159,9 +156,6 @@ class FileFilter:
 
         if self._gitignore_spec and self._gitignore_spec.match_file(rel_str):
             return "gitignored"
-
-        if self._ragmcpignore_spec and self._ragmcpignore_spec.match_file(rel_str):
-            return "rag-mcpignored"
 
         return ""  # OK to index
 

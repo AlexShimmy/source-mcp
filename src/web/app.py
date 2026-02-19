@@ -6,7 +6,7 @@ from ..config import settings
 from ..services.monitor import monitor
 from ..services.indexer import indexer
 
-app = FastAPI(title="RMCP Dashboard")
+app = FastAPI(title="Source-MCP Dashboard")
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
@@ -14,7 +14,7 @@ TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 _VERSION = "dev"
 try:
     import importlib.metadata
-    _VERSION = importlib.metadata.version("rag-mcp")
+    _VERSION = importlib.metadata.version("source-mcp")
 except Exception:
     pass
 
@@ -27,7 +27,7 @@ async def read_root():
     except FileNotFoundError:
         return HTMLResponse(
             content=(
-                f"<html><body><h1>RMCP Dashboard</h1>"
+                f"<html><body><h1>Source-MCP Dashboard</h1>"
                 f"<p>Template not found: <code>{index_path}</code></p>"
                 f"<p><a href='/api/stats'>API Stats</a></p>"
                 f"</body></html>"

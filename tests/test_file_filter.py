@@ -107,12 +107,3 @@ def test_collect_files(file_filter):
     assert skipped > 0
 
 
-def test_ragmcpignore(tmp_path):
-    """Test .rag-mcpignore support."""
-    (tmp_path / "keep.py").write_text("keep")
-    (tmp_path / "secret.py").write_text("secret")
-    (tmp_path / ".rag-mcpignore").write_text("secret.py\n")
-
-    ff = FileFilter(tmp_path)
-    assert ff.should_index(tmp_path / "keep.py") == ""
-    assert "rag-mcpignored" in ff.should_index(tmp_path / "secret.py")

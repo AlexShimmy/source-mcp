@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🔍 Source-MCP (formerly RAG-MCP)</h1>
+  <h1>🔍 Source-MCP</h1>
   <p><strong>A Model Context Protocol (MCP) server for semantic search and Retrieval-Augmented Generation (RAG) over local codebases and documents.</strong></p>
 </div>
 
@@ -7,7 +7,7 @@
 
 ## 📖 Overview
 
-**Source-MCP** leverages the [Model Context Protocol](https://github.com/anthropic/modelcontextprotocol) to provide AI assistants (like Claude, Gemini, and others) with direct access to local files through semantic search. 
+**Source-MCP** leverages the [Model Context Protocol](https://github.com/anthropic/modelcontextprotocol) to provide AI assistants (like Claude, Gemini, and others) with direct access to local files through semantic search.
 
 Instead of manually copy-pasting code or documentation into your prompts, Source-MCP automatically indexes your local repository, generates vector embeddings, and enables the AI to semantically search and retrieve only the most relevant files.
 
@@ -21,17 +21,25 @@ Instead of manually copy-pasting code or documentation into your prompts, Source
 - **Web Dashboard (Port 8000):**
   - **Live Logs:** View real-time indexing and search activity with auto-scroll.
   - **Reindex Base:** Force-wipe the vector DB and manifest for a completely fresh full scan.
+  - **Reindex Base:** Force-wipe the vector DB and manifest for a completely fresh full scan.
   - **Search Debugging:** Special endpoint (`/api/search/debug?q=...`) to test raw semantic search scores.
+
+## 🤔 Why local embeddings and `zvec`?
+
+We use [**zvec**](https://github.com/alibaba/zvec), a lightweight, high-performance vector database maintained by Alibaba. `zvec` is embedded directly into the Python process, eliminating the need to set up or run external vector servers (like Pinecone, Milvus, or Qdrant). Combined with `FastEmbed`, this allows Source-MCP to build the entire semantic search pipeline **fully offline**, quickly, and entirely on your local machine.
 
 ## 🚀 Installation & Setup
 
-1. **Prerequisites:** Ensure you have Python 3.12+ and [`uv`](https://github.com/astral-sh/uv) installed.
+1. **Prerequisites:** Ensure you have Python 3.10+ and [`uv`](https://github.com/astral-sh/uv) installed.
 2. **Clone the repository:**
+
    ```bash
    git clone https://github.com/your-username/source-mcp.git
    cd source-mcp
    ```
+
 3. **Install Dependencies:**
+
    ```bash
    # uv will automatically handle virtual environment creation and dependencies
    uv sync
@@ -46,10 +54,17 @@ Create a `.env` file in the root directory (you can copy `.env.example` if avail
 EMBEDDING_PROVIDER=openai
 
 # Required ONLY if using OpenAI
+# Required ONLY if using OpenAI
 OPENAI_API_KEY=sk-your-openai-api-key
 
-# Optional: Path to store the vector database
+# Optional: Path to store the vector database (Defaults to `.source-mcp/zvec_db` in the index dir)
 ZVEC_PATH=./zvec_db
+
+# Optional: Which directory to index (Defaults to current directory)
+SOURCE_MCP_INDEX_DIR=/path/to/your/project
+
+# Optional: Port for the Web Dashboard (Defaults to 8000)
+WEB_PORT=8000
 ```
 
 ## 🖱️ Usage
@@ -61,6 +76,7 @@ To start the MCP server manually and access the web dashboard:
 ```bash
 uv run python -m src.main --path .
 ```
+
 - The **MCP protocol** will listen on `stdio`.
 - The **Web Dashboard** will be available at [http://localhost:8000](http://localhost:8000).
 
@@ -92,6 +108,47 @@ To use Source-MCP inside Claude Desktop or another MCP-compatible client, update
 }
 ```
 
+### 💻 Using with Cursor IDE
+
+To use Source-MCP natively directly in Cursor:
+
+1. Open Cursor Settings (`Cmd` + `,`)
+2. Navigate to **Features > MCP**
+3. Click **+ Add new MCP server**
+4. Configure as follows:
+   - **Type:** `command`
+   - **Name:** `Source-MCP`
+   - **Command:** `uv --directory /absolute/path/to/source-mcp run python -m src.main --path /absolute/path/to/your/target/project`
+
+### 💻 Using with VS Code (Roo Code / Cline)
+
+To integrate Source-MCP into Roo Code (or Cline) inside VS Code:
+
+1. Open the MCP configuration file (`~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/cline_mcp_settings.json` or through the extension UI).
+2. Add the following entry:
+
+```json
+{
+  "mcpServers": {
+    "source-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/absolute/path/to/source-mcp",
+        "run",
+        "python",
+        "-m",
+        "src.main"
+      ],
+      "env": {
+        "SOURCE_MCP_INDEX_DIR": "/absolute/path/to/your/target/project",
+        "EMBEDDING_PROVIDER": "fastembed"
+      }
+    }
+  }
+}
+```
+
 ## 🧪 Testing
 
 The project uses `pytest` for unit and end-to-end tests. To run the test suite:
@@ -99,15 +156,6 @@ The project uses `pytest` for unit and end-to-end tests. To run the test suite:
 ```bash
 uv run python -m pytest tests/ -v
 ```
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-1. Fork the project.
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
 
 ## 📜 License
 
